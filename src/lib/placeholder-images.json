@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "intro",
+      "description": "Family business foundation",
+      "imageUrl": "https://images.unsplash.com/photo-1610387853988-7a1623efb207?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYW1pbHklMjBidXNpbmVzc3xlbnwwfHx8fDE3NzE3MTAwNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "family business"
+    },
+    {
+      "id": "governance",
+      "description": "Corporate governance",
+      "imageUrl": "https://images.unsplash.com/photo-1605256585681-455837661b18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29ycG9yYXRlJTIwbWVldGluZ3xlbnwwfHx8fDE3NzE2OTUzMTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "corporate meeting"
+    },
+    {
+      "id": "succession",
+      "description": "Generational transition",
+      "imageUrl": "https://images.unsplash.com/photo-1573241380086-db4c4a8d604e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwYXNzaW5nJTIwdG9yY2h8ZW58MHx8fHwxNzcxNzEwMDc2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "passing torch"
+    },
+    {
+      "id": "finance",
+      "description": "Family wealth management",
+      "imageUrl": "https://images.unsplash.com/photo-1633158829875-e5316a358c6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWFsdGglMjBtYW5hZ2VtZW50fGVufDB8fHx8MTc3MTcxMDA3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wealth management"
+    },
+    {
+      "id": "conflict",
+      "description": "Family conflict resolution",
+      "imageUrl": "https://images.unsplash.com/photo-1763656445564-6fef9a9a9443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb25mbGljdCUyMHJlc29sdXRpb258ZW58MHx8fHwxNzcxNzEwMDc2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "conflict resolution"
+    },
+    {
+      "id": "strategy",
+      "description": "Strategic planning",
+      "imageUrl": "https://images.unsplash.com/photo-1529119368496-2dfda6ec2804?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHN0cmF0ZWd5fGVufDB8fHx8MTc3MTU5ODEyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "business strategy"
+    }
+  ]
 }
