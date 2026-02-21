@@ -10,10 +10,16 @@ export default async function ModulePage({
 }) {
   const { id } = await params;
 
-  const module = await prisma.module.findUnique({
-    where: { id },
-    include: { resources: { orderBy: { order: "asc" } } },
-  });
+  let module;
+  try {
+    module = await prisma.module.findUnique({
+      where: { id },
+      include: { resources: { orderBy: { order: "asc" } } },
+    });
+  } catch (err) {
+    console.error("[ModulePage] Erro ao buscar módulo:", err);
+    throw new Error("Falha ao carregar o módulo. Tente novamente.");
+  }
 
   if (!module) notFound();
 
@@ -21,14 +27,19 @@ export default async function ModulePage({
   let initialCompletedResources: Record<string, boolean> = {};
 
   if (session?.user?.id) {
-    const resourceProgress = await prisma.userResourceProgress.findMany({
-      where: {
-        userId: session.user.id,
-        resourceId: { in: module.resources.map((r) => r.id) },
-      },
-    });
-    for (const p of resourceProgress) {
-      initialCompletedResources[p.resourceId] = p.completed;
+    try {
+      const resourceProgress = await prisma.userResourceProgress.findMany({
+        where: {
+          userId: session.user.id,
+          resourceId: { in: module.resources.map((r) => r.id) },
+        },
+      });
+      for (const p of resourceProgress) {
+        initialCompletedResources[p.resourceId] = p.completed;
+      }
+    } catch (err) {
+      console.error("[ModulePage] Erro ao buscar progresso:", err);
+      // progresso não crítico, continua sem ele
     }
   }
 
