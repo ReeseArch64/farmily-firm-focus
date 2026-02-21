@@ -1,13 +1,23 @@
 
 import { curriculum } from "@/lib/data";
 import { ModuleCard } from "@/components/module-card";
-import { BookOpen, Award, Users } from "lucide-react";
+import { BookOpen, Award, Users, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen pb-20">
       {/* Hero Header */}
-      <header className="bg-primary text-primary-foreground py-16 px-6 shadow-xl">
+      <header className="bg-primary text-primary-foreground py-16 px-6 shadow-xl relative overflow-hidden">
+        <div className="absolute top-6 right-6">
+          <Link href="/login">
+            <Button variant="secondary" className="gap-2 font-bold shadow-md">
+              <LogIn className="w-4 h-4" /> Entrar
+            </Button>
+          </Link>
+        </div>
+        
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
             <Award className="text-accent w-8 h-8" />
