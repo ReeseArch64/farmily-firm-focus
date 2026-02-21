@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   CheckCircle2,
   ChevronRight,
@@ -41,6 +42,8 @@ interface ModuleCardProps {
     resources: Resource[];
   };
   isCompleted?: boolean;
+  completedResources?: number;
+  totalResources?: number;
   isAdmin?: boolean;
   onDeleted?: () => void;
 }
@@ -48,11 +51,17 @@ interface ModuleCardProps {
 export function ModuleCard({
   module,
   isCompleted,
+  completedResources = 0,
+  totalResources,
   isAdmin,
   onDeleted,
 }: ModuleCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const total = totalResources ?? module.resources.length;
+  const hasProgress = completedResources > 0 && !isCompleted;
+  const progressPercent = total > 0 ? (completedResources / total) * 100 : 0;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -107,13 +116,28 @@ export function ModuleCard({
             </div>
 
             {/* Content */}
-            <div className="p-4 flex items-start justify-between gap-3">
-              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
-                {module.summary}
-              </p>
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/10 text-accent shrink-0 mt-0.5 group-hover:bg-accent group-hover:text-white transition-colors duration-200">
-                <ChevronRight className="w-4 h-4" />
+            <div className="p-4 flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
+                  {module.summary}
+                </p>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/10 text-accent shrink-0 mt-0.5 group-hover:bg-accent group-hover:text-white transition-colors duration-200">
+                  <ChevronRight className="w-4 h-4" />
+                </div>
               </div>
+
+              {/* Progress bar (only if user has partial progress) */}
+              {hasProgress && total > 0 && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Progresso</span>
+                    <span className="font-semibold text-accent">
+                      {completedResources}/{total}
+                    </span>
+                  </div>
+                  <Progress value={progressPercent} className="h-1.5" />
+                </div>
+              )}
             </div>
           </Card>
         </Link>

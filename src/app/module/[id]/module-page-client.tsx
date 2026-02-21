@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft,
   ExternalLink,
@@ -40,7 +41,7 @@ interface Module {
 
 interface ModulePageClientProps {
   module: Module;
-  initialCompleted: boolean;
+  initialCompletedResources: Record<string, boolean>;
   isLoggedIn: boolean;
   isAdmin: boolean;
 }
@@ -58,17 +59,24 @@ const resourceTypeConfig: Record<
 
 export function ModulePageClient({
   module,
-  initialCompleted,
+  initialCompletedResources,
   isLoggedIn,
   isAdmin,
 }: ModulePageClientProps) {
   const { toast } = useToast();
-  const [completed, setCompleted] = useState(initialCompleted);
-  const [toggling, setToggling] = useState(false);
+  const [completedResources, setCompletedResources] = useState<Record<string, boolean>>(
+    initialCompletedResources
+  );
+  const [toggling, setToggling] = useState<Record<string, boolean>>({});
   const [showEdit, setShowEdit] = useState(false);
   const [currentModule, setCurrentModule] = useState(module);
 
-  const handleToggle = async () => {
+  const resources = currentModule.resources;
+  const totalResources = resources.length;
+  const doneCount = resources.filter((r) => r.id && completedResources[r.id]).length;
+  const allDone = totalResources > 0 && doneCount === totalResources;
+
+  const handleResourceToggle = async (resourceId: string) => {
     if (!isLoggedIn) {
       toast({
         title: "Faça login para rastrear progresso",
@@ -77,27 +85,21 @@ export function ModulePageClient({
       return;
     }
 
-    setToggling(true);
-    const next = !completed;
-    setCompleted(next);
+    const next = !completedResources[resourceId];
+    setToggling((prev) => ({ ...prev, [resourceId]: true }));
+    setCompletedResources((prev) => ({ ...prev, [resourceId]: next }));
 
     try {
       await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moduleId: currentModule.id, completed: next }),
-      });
-      toast({
-        title: next ? "Módulo concluído!" : "Progresso removido",
-        description: next
-          ? "Parabéns! Continue assim."
-          : "Você pode marcar novamente quando quiser.",
+        body: JSON.stringify({ resourceId, completed: next }),
       });
     } catch {
-      setCompleted(!next);
+      setCompletedResources((prev) => ({ ...prev, [resourceId]: !next }));
       toast({ title: "Erro ao salvar progresso", variant: "destructive" });
     } finally {
-      setToggling(false);
+      setToggling((prev) => ({ ...prev, [resourceId]: false }));
     }
   };
 
@@ -155,7 +157,7 @@ export function ModulePageClient({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-              {completed && (
+              {allDone && (
                 <div className="absolute top-4 right-4">
                   <div className="flex items-center gap-2 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
                     <CheckCircle2 className="w-4 h-4" />
@@ -199,45 +201,103 @@ export function ModulePageClient({
                 transition={{ delay: 0.3 }}
                 className="mb-10"
               >
-                <h2 className="text-xl font-black text-foreground mb-6">
-                  Recursos e Materiais
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-black text-foreground">
+                    Recursos e Materiais
+                  </h2>
+                  {isLoggedIn && totalResources > 0 && (
+                    <span
+                      className={`text-sm font-semibold ${
+                        allDone ? "text-emerald-600" : "text-muted-foreground"
+                      }`}
+                    >
+                      {doneCount}/{totalResources} concluídos
+                    </span>
+                  )}
+                </div>
+
+                {isLoggedIn && totalResources > 0 && (
+                  <div className="mb-6">
+                    <Progress
+                      value={(doneCount / totalResources) * 100}
+                      className="h-2"
+                    />
+                  </div>
+                )}
+
                 <div className="grid gap-3">
-                  {currentModule.resources.map((resource, idx) => {
+                  {resources.map((resource, idx) => {
                     const { icon: Icon, color, label } = getResource(resource.type);
+                    const isResourceDone = resource.id ? !!completedResources[resource.id] : false;
+                    const isTogglingThis = resource.id ? !!toggling[resource.id] : false;
+
                     return (
-                      <motion.a
+                      <motion.div
                         key={resource.id}
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         initial={{ opacity: 0, x: -16 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * idx + 0.3 }}
-                        whileHover={{ x: 4 }}
-                        className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-secondary/30 hover:bg-secondary/60 hover:border-accent/30 hover:shadow-md transition-all group"
+                        className={`flex items-center gap-3 rounded-xl border transition-all ${
+                          isResourceDone
+                            ? "border-emerald-300 bg-emerald-50/50"
+                            : "border-border/60 bg-secondary/30"
+                        }`}
                       >
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-11 h-11 rounded-xl flex items-center justify-center ${color} shrink-0 transition-transform group-hover:scale-110 duration-200`}
+                        {/* Checkbox toggle */}
+                        {isLoggedIn && (
+                          <button
+                            onClick={() => resource.id && handleResourceToggle(resource.id)}
+                            disabled={isTogglingThis}
+                            className={`shrink-0 ml-4 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                              isResourceDone
+                                ? "bg-emerald-500 text-white"
+                                : "bg-secondary text-muted-foreground hover:bg-emerald-100 hover:text-emerald-600"
+                            }`}
+                            aria-label={isResourceDone ? "Desmarcar" : "Marcar como concluído"}
                           >
-                            <Icon className="w-5 h-5" />
+                            {isResourceDone ? (
+                              <CheckCircle2 className="w-4 h-4" />
+                            ) : (
+                              <Circle className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+
+                        {/* Link area */}
+                        <a
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between flex-1 p-4 group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`w-11 h-11 rounded-xl flex items-center justify-center ${color} shrink-0 transition-transform group-hover:scale-110 duration-200`}
+                            >
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p
+                                className={`font-bold transition-colors group-hover:text-accent ${
+                                  isResourceDone
+                                    ? "text-emerald-700 line-through decoration-emerald-400/60"
+                                    : "text-foreground"
+                                }`}
+                              >
+                                {resource.title}
+                              </p>
+                              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide mt-0.5">
+                                {label}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-foreground group-hover:text-accent transition-colors">
-                              {resource.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide mt-0.5">
-                              {label}
-                            </p>
-                          </div>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
-                      </motion.a>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
+                        </a>
+                      </motion.div>
                     );
                   })}
 
-                  {currentModule.resources.length === 0 && (
+                  {resources.length === 0 && (
                     <p className="text-muted-foreground text-sm text-center py-6">
                       Nenhum recurso disponível ainda.
                     </p>
@@ -245,91 +305,57 @@ export function ModulePageClient({
                 </div>
               </motion.section>
 
-              <Separator className="my-8" />
-
-              {/* Progress */}
-              <motion.section
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <h2 className="text-xl font-black text-foreground mb-4">
-                  Seu Progresso
-                </h2>
-
-                {!isLoggedIn ? (
-                  <div className="flex items-center justify-between p-5 rounded-xl border-2 border-dashed border-border bg-secondary/20">
-                    <div>
-                      <p className="font-bold text-foreground">
-                        Faça login para salvar seu progresso
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        Acompanhe o que já estudou entre sessões.
-                      </p>
-                    </div>
-                    <Link href="/login">
-                      <Button size="sm" className="gap-2 shrink-0">
-                        <LogIn className="w-4 h-4" />
-                        Entrar
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <motion.button
-                    onClick={handleToggle}
-                    disabled={toggling}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full flex items-center gap-4 p-5 rounded-xl border-2 transition-all cursor-pointer text-left ${
-                      completed
-                        ? "bg-emerald-50 border-emerald-400 shadow-emerald-100 shadow-md"
-                        : "bg-card border-border hover:border-accent/50 hover:bg-secondary/30"
-                    }`}
+              {/* Login CTA if not logged in */}
+              {!isLoggedIn && (
+                <>
+                  <Separator className="my-8" />
+                  <motion.section
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
                   >
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                        completed
-                          ? "bg-emerald-500 text-white"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {completed ? (
-                        <CheckCircle2 className="w-6 h-6" />
-                      ) : (
-                        <Circle className="w-6 h-6" />
-                      )}
+                    <div className="flex items-center justify-between p-5 rounded-xl border-2 border-dashed border-border bg-secondary/20">
+                      <div>
+                        <p className="font-bold text-foreground">
+                          Faça login para salvar seu progresso
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          Marque os conteúdos que já estudou e acompanhe sua evolução.
+                        </p>
+                      </div>
+                      <Link href="/login">
+                        <Button size="sm" className="gap-2 shrink-0">
+                          <LogIn className="w-4 h-4" />
+                          Entrar
+                        </Button>
+                      </Link>
                     </div>
-                    <div className="flex-1">
-                      <p
-                        className={`font-black text-lg ${
-                          completed ? "text-emerald-700" : "text-foreground"
-                        }`}
-                      >
-                        {completed ? "Estudo Concluído!" : "Marcar como Concluído"}
-                      </p>
-                      <p
-                        className={`text-sm mt-0.5 ${
-                          completed
-                            ? "text-emerald-600"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {completed
-                          ? "Você dominou este módulo. Parabéns!"
-                          : "Clique quando terminar de estudar este módulo."}
+                  </motion.section>
+                </>
+              )}
+
+              {/* Completion banner */}
+              {isLoggedIn && allDone && (
+                <>
+                  <Separator className="my-8" />
+                  <motion.section
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex items-center gap-4 p-5 rounded-xl border-2 border-emerald-400 bg-emerald-50 shadow-md shadow-emerald-100"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-black text-lg text-emerald-700">Módulo Concluído!</p>
+                      <p className="text-sm text-emerald-600 mt-0.5">
+                        Você finalizou todos os conteúdos deste módulo. Parabéns!
                       </p>
                     </div>
-                    {completed && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="text-emerald-500"
-                      >
-                        <CheckCircle2 className="w-7 h-7" />
-                      </motion.div>
-                    )}
-                  </motion.button>
-                )}
-              </motion.section>
+                  </motion.section>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

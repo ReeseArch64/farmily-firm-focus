@@ -18,19 +18,24 @@ export default async function ModulePage({
   if (!module) notFound();
 
   const session = await auth();
-  let initialCompleted = false;
+  let initialCompletedResources: Record<string, boolean> = {};
 
   if (session?.user?.id) {
-    const progress = await prisma.userModuleProgress.findUnique({
-      where: { userId_moduleId: { userId: session.user.id, moduleId: id } },
+    const resourceProgress = await prisma.userResourceProgress.findMany({
+      where: {
+        userId: session.user.id,
+        resourceId: { in: module.resources.map((r) => r.id) },
+      },
     });
-    initialCompleted = progress?.completed ?? false;
+    for (const p of resourceProgress) {
+      initialCompletedResources[p.resourceId] = p.completed;
+    }
   }
 
   return (
     <ModulePageClient
       module={module}
-      initialCompleted={initialCompleted}
+      initialCompletedResources={initialCompletedResources}
       isLoggedIn={!!session?.user}
       isAdmin={(session?.user as any)?.role === "ADMIN"}
     />

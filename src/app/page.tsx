@@ -51,7 +51,7 @@ export default function Home() {
   const { data: session } = useSession();
   const isAdmin = (session?.user as any)?.role === "ADMIN";
   const [modules, setModules] = useState<Module[]>([]);
-  const [progress, setProgress] = useState<Record<string, boolean>>({});
+  const [progress, setProgress] = useState<Record<string, { completed: boolean; done: number; total: number }>>({});
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
 
@@ -76,7 +76,7 @@ export default function Home() {
     fetchProgress();
   }, [session]);
 
-  const completedCount = Object.values(progress).filter(Boolean).length;
+  const completedCount = Object.values(progress).filter((p) => p.completed).length;
 
   return (
     <div className="min-h-screen pb-24">
@@ -292,7 +292,9 @@ export default function Home() {
                 <motion.div key={module.id} variants={itemVariants}>
                   <ModuleCard
                     module={module}
-                    isCompleted={!!progress[module.id]}
+                    isCompleted={!!progress[module.id]?.completed}
+                    completedResources={progress[module.id]?.done ?? 0}
+                    totalResources={progress[module.id]?.total ?? module.resources.length}
                     isAdmin={isAdmin}
                     onDeleted={fetchModules}
                   />
