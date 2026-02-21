@@ -15,12 +15,18 @@ import {
   PlayCircle,
   BookText,
   FileText,
-  Share2,
   Globe,
   CheckCircle2,
   Circle,
   LogIn,
   Edit,
+  GraduationCap,
+  Newspaper,
+  Mic2,
+  Video,
+  Tv,
+  Film,
+  Music,
 } from "lucide-react";
 import { EditModuleDialog } from "@/components/edit-module-dialog";
 
@@ -50,11 +56,16 @@ const resourceTypeConfig: Record<
   string,
   { icon: React.ElementType; color: string; label: string }
 > = {
-  playlist: { icon: PlayCircle, color: "text-red-500 bg-red-50", label: "Playlist" },
-  book: { icon: BookText, color: "text-blue-500 bg-blue-50", label: "Livro" },
-  material: { icon: FileText, color: "text-amber-500 bg-amber-50", label: "Material" },
-  post: { icon: Share2, color: "text-purple-500 bg-purple-50", label: "Post" },
-  blog: { icon: Globe, color: "text-emerald-500 bg-emerald-50", label: "Blog" },
+  curso:    { icon: GraduationCap, color: "text-indigo-500 bg-indigo-50",  label: "Curso" },
+  playlist: { icon: PlayCircle,    color: "text-red-500 bg-red-50",        label: "PlayList" },
+  artigo:   { icon: Newspaper,     color: "text-emerald-500 bg-emerald-50",label: "Artigo" },
+  livro:    { icon: BookText,      color: "text-blue-500 bg-blue-50",      label: "Livro" },
+  podcast:  { icon: Mic2,          color: "text-orange-500 bg-orange-50",  label: "Podcast" },
+  video:    { icon: Video,         color: "text-pink-500 bg-pink-50",      label: "Video" },
+  material: { icon: FileText,      color: "text-amber-500 bg-amber-50",    label: "Material Complementar" },
+  serie:    { icon: Tv,            color: "text-violet-500 bg-violet-50",  label: "Serie" },
+  filme:    { icon: Film,          color: "text-rose-500 bg-rose-50",      label: "Filme" },
+  musica:   { icon: Music,         color: "text-cyan-500 bg-cyan-50",      label: "Musica" },
 };
 
 export function ModulePageClient({

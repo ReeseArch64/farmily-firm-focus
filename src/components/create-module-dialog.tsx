@@ -36,11 +36,16 @@ interface CreateModuleDialogProps {
 }
 
 const RESOURCE_TYPES = [
-  { value: "post", label: "Post" },
-  { value: "blog", label: "Blog" },
-  { value: "playlist", label: "Playlist" },
-  { value: "book", label: "Livro" },
-  { value: "material", label: "Material" },
+  { value: "curso", label: "Curso" },
+  { value: "playlist", label: "PlayList" },
+  { value: "artigo", label: "Artigo" },
+  { value: "livro", label: "Livro" },
+  { value: "podcast", label: "Podcast" },
+  { value: "video", label: "Video" },
+  { value: "material", label: "Material Complementar" },
+  { value: "serie", label: "Serie" },
+  { value: "filme", label: "Filme" },
+  { value: "musica", label: "Musica" },
 ];
 
 export function CreateModuleDialog({
@@ -56,11 +61,11 @@ export function CreateModuleDialog({
     bannerImage: "",
   });
   const [resources, setResources] = useState<Resource[]>([
-    { type: "post", title: "", url: "" },
+    { type: "curso", title: "", url: "" },
   ]);
 
   const addResource = () => {
-    setResources((prev) => [...prev, { type: "post", title: "", url: "" }]);
+    setResources((prev) => [...prev, { type: "curso", title: "", url: "" }]);
   };
 
   const removeResource = (i: number) => {
@@ -97,7 +102,7 @@ export function CreateModuleDialog({
       onCreated();
       onOpenChange(false);
       setForm({ title: "", summary: "", bannerImage: "" });
-      setResources([{ type: "post", title: "", url: "" }]);
+      setResources([{ type: "curso", title: "", url: "" }]);
     } catch {
       toast({ title: "Erro ao criar módulo", variant: "destructive" });
     } finally {

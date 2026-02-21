@@ -1,5 +1,5 @@
 
-export type ResourceType = 'post' | 'blog' | 'playlist' | 'book' | 'material';
+export type ResourceType = 'curso' | 'playlist' | 'artigo' | 'livro' | 'podcast' | 'video' | 'material' | 'serie' | 'filme' | 'musica';
 
 export interface ExternalResource {
   type: ResourceType;

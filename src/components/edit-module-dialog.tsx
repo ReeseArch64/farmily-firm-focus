@@ -46,11 +46,16 @@ interface EditModuleDialogProps {
 }
 
 const RESOURCE_TYPES = [
-  { value: "post", label: "Post" },
-  { value: "blog", label: "Blog" },
-  { value: "playlist", label: "Playlist" },
-  { value: "book", label: "Livro" },
-  { value: "material", label: "Material" },
+  { value: "curso", label: "Curso" },
+  { value: "playlist", label: "PlayList" },
+  { value: "artigo", label: "Artigo" },
+  { value: "livro", label: "Livro" },
+  { value: "podcast", label: "Podcast" },
+  { value: "video", label: "Video" },
+  { value: "material", label: "Material Complementar" },
+  { value: "serie", label: "Serie" },
+  { value: "filme", label: "Filme" },
+  { value: "musica", label: "Musica" },
 ];
 
 export function EditModuleDialog({
@@ -76,7 +81,7 @@ export function EditModuleDialog({
   }, [open, module]);
 
   const addResource = () =>
-    setResources((r) => [...r, { type: "post", title: "", url: "" }]);
+    setResources((r) => [...r, { type: "curso", title: "", url: "" }]);
 
   const removeResource = (i: number) =>
     setResources((r) => r.filter((_, idx) => idx !== i));
